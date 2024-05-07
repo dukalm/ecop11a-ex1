@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define PORT 8080
+#define PORT 3000
 
 char *html = "HTTP/1.1 200 OK\r\n"
               "Content-Type: text/html; charset=UTF-8\r\n\r\n"
@@ -47,7 +47,11 @@ int main(void) {
             exit(EXIT_FAILURE);
         }
 
-        write(new_socket , html , strlen(html));
+        if (write(new_socket , html , strlen(html)) < 0) {
+            perror("Falha no envio da página HTML");
+            close(new_socket);
+            continue;
+        }
         printf("Página HTML enviada para o cliente\n");
         close(new_socket);
     }
