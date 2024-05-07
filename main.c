@@ -1,70 +1,56 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <unistd.h>
+#include <arpa/inet.h>
 
 #define PORT 8080
-#define MAX_CONNECTIONS 10
-#define BUFFER_SIZE 1024
 
-void send_response(int client_socket) {
-    char response[] = "HTTP/1.1 200 OK\r\n"
-                      "Content-Type: text/html\r\n\r\n"
-                      "<!DOCTYPE html>\r\n"
-                      "<html><head><title>Simple Web Server</title></head><body>"
-                      "<h1>Vai se foder</h1>"
-                      "<p>Vai tomar no cu n ligo pra vc</p>"
-                      "</body></html>";
-    send(client_socket, response, strlen(response), 0);
-}
+char *html = "HTTP/1.1 200 OK\r\n"
+              "Content-Type: text/html; charset=UTF-8\r\n\r\n"
+              "<!DOCTYPE html>\r\n"
+              "<html><head><title>Olá Mundo</title></head>\r\n"
+              "<body><h1>Olá Mundo!</h1></body></html>\r\n"
+              "<p>Este é um exemplo de página HTML simples.</p>\r\n";
 
-int main() {
-    int server_socket, client_socket;
-    struct sockaddr_in server_addr, client_addr;
-    socklen_t client_len = sizeof(client_addr);
-    
-    // Create socket
-    if ((server_socket = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        perror("Socket creation failed");
+int main(void) {
+    int server_fd, new_socket; long valread;
+    struct sockaddr_in address;
+    int addrlen = sizeof(address);
+
+    // Criando socket file descriptor
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+        perror("Falha na criação do socket");
         exit(EXIT_FAILURE);
     }
-    
-    // Prepare the sockaddr_in structure
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = INADDR_ANY;
-    server_addr.sin_port = htons(PORT);
-    
-    // Bind
-    if (bind(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
-        perror("Bind failed");
+
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons( PORT );
+
+    memset(address.sin_zero, '\0', sizeof address.sin_zero);
+
+    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address))<0) {
+        perror("Falha no bind");
         exit(EXIT_FAILURE);
     }
-    
-    // Listen
-    if (listen(server_socket, MAX_CONNECTIONS) < 0) {
-        perror("Listen failed");
+    if (listen(server_fd, 10) < 0) {
+        perror("Falha no listen");
         exit(EXIT_FAILURE);
     }
-    
-    printf("Server listening on port %d...\n", PORT);
-    
+
     while(1) {
-        // Accept connection
-        if ((client_socket = accept(server_socket, (struct sockaddr *)&client_addr, &client_len)) < 0) {
-            perror("Accept failed");
+        printf("\nAguardando conexões...\n");
+
+        if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0) {
+            perror("Falha no accept");
             exit(EXIT_FAILURE);
         }
-        
-        printf("New connection accepted\n");
-        
-        // Handle client request
-        send_response(client_socket);
-        
-        // Close socket
-        close(client_socket);
+
+        write(new_socket , html , strlen(html));
+        printf("Página HTML enviada para o cliente\n");
+        close(new_socket);
     }
-    
+
     return 0;
 }
