@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define PORT 3000
+#define PORT 8080
 
 char *html = "HTTP/1.1 200 OK\r\n"
               "Content-Type: text/html; charset=UTF-8\r\n\r\n"
