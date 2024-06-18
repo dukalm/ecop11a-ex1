@@ -9,9 +9,9 @@
 char *html = "HTTP/1.1 200 OK\r\n"
               "Content-Type: text/html; charset=UTF-8\r\n\r\n"
               "<!DOCTYPE html>\r\n"
-              "<html><head><title>Luiza</title></head>\r\n"
-              "<body><h1>Para: Luiza</h1></body></html>\r\n"
-              "<p>Te amo!!!</p>\r\n";
+              "<html><head><title>medições</title></head>\r\n"
+              "<body><h1>medições adiquiridas</h1></body></html>\r\n"
+              "<p>Toma:</p>\r\n";
 
 int main(void) {
     int server_fd, new_socket; long valread;
